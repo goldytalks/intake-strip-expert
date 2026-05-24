@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Intake Placement Coach — AI nasal magnet guide</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%236366f1'/%3E%3Ctext x='50' y='68' font-family='-apple-system,sans-serif' font-size='62' font-weight='700' text-anchor='middle' fill='white'%3EI%3C/text%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #0a0e14;
+  --bg-elevated: #131820;
+  --bg-card: #1a212d;
+  --border: #2a3242;
+  --border-soft: #1f2632;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --text-faint: #6e7681;
+  --accent: #3fb950;
+  --accent-warn: #d29922;
+  --accent-bad: #f85149;
+  --brand: #6366f1;
+  --brand-light: #818cf8;
+  --shadow-lg: 0 24px 64px rgba(0,0,0,0.5);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99,102,241,0.15), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(63,185,80,0.06), transparent 70%);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+header {
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid var(--border-soft);
+  background: rgba(10, 14, 20, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: white;
+  box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+}
+
+h1 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.tagline {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  letter-spacing: 0.01em;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+button {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+button:hover {
+  background: #232b3a;
+  border-color: #3a4252;
+  transform: translateY(-1px);
+}
+
+button:active { transform: translateY(0); }
+
+button.primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: white;
+}
+
+button.primary:hover {
+  background: var(--brand-light);
+  border-color: var(--brand-light);
+}
+
+main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 980px) {
+  main { grid-template-columns: 1fr; padding: 1rem; }
+  header { padding: 1rem; }
+}
+
+.camera-section {
+  position: relative;
+  background: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  min-height: 360px;
+}
+
+#webcam, #overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#webcam {
+  object-fit: cover;
+  transform: scaleX(-1);
+  background: #000;
+}
+
+#overlay { pointer-events: none; }
+
+.status-pill {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.5rem 0.9rem;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 10;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.95);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  box-shadow: 0 0 0 0 currentColor;
+}
+
+.status-dot.good { background: var(--accent); animation: glow-good 1.6s ease-in-out infinite; }
+.status-dot.warn { background: var(--accent-warn); animation: glow-warn 1.6s ease-in-out infinite; }
+.status-dot.bad { background: var(--accent-bad); animation: glow-bad 0.8s ease-in-out infinite; }
+
+@keyframes glow-good { 0%,100% { box-shadow: 0 0 0 0 rgba(63,185,80,0.7); } 50% { box-shadow: 0 0 0 6px rgba(63,185,80,0); } }
+@keyframes glow-warn { 0%,100% { box-shadow: 0 0 0 0 rgba(210,153,34,0.7); } 50% { box-shadow: 0 0 0 6px rgba(210,153,34,0); } }
+@keyframes glow-bad  { 0%,100% { box-shadow: 0 0 0 0 rgba(248,81,73,0.7); }  50% { box-shadow: 0 0 0 6px rgba(248,81,73,0); } }
+
+.fps-pill {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.35rem 0.7rem;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.7);
+  font-variant-numeric: tabular-nums;
+  z-index: 10;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.message-overlay {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.8rem 1.4rem;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  max-width: calc(100% - 8rem);
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.1);
+  letter-spacing: 0.005em;
+  z-index: 9;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.camera-controls {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 1.1rem;
+  color: white;
+}
+
+.icon-btn:hover {
+  background: rgba(255,255,255,0.15);
+  transform: translateY(0);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 1.15rem 1.25rem;
+}
+
+.card h2 {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  margin-bottom: 0.85rem;
+}
+
+.step-display {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.step-num {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+}
+
+.step-info { flex: 1; min-width: 0; }
+
+.step-title {
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.01em;
+}
+
+.step-desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.45rem 0;
+}
+
+.metric-label {
+  font-size: 0.82rem;
+  flex: 0 0 78px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.metric-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.metric-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.25s ease, background-color 0.35s ease;
+  width: 0%;
+}
+
+.metric-value {
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+  flex: 0 0 30px;
+  text-align: right;
+  font-weight: 500;
+}
+
+.tips-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.tips-list li {
+  font-size: 0.875rem;
+  color: var(--text);
+  line-height: 1.5;
+  padding-left: 1.4rem;
+  position: relative;
+}
+
+.tips-list li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--brand-light);
+  font-weight: 700;
+}
+
+.tips-list li.good { color: var(--accent); }
+.tips-list li.good::before { content: "✓"; color: var(--accent); }
+
+.info-text {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+.info-text strong { color: var(--text); font-weight: 600; }
+
+footer {
+  padding: 1rem 2rem 1.5rem;
+  font-size: 0.74rem;
+  color: var(--text-faint);
+  text-align: center;
+  line-height: 1.5;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+  padding: 1rem;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+.modal-bg.open { display: flex; }
+
+.modal {
+  background: var(--bg-elevated);
+  border-radius: 18px;
+  padding: 2rem;
+  max-width: 480px;
+  width: 100%;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  animation: scaleIn 0.22s ease;
+}
+
+.modal h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+}
+
+.modal p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+
+.modal p strong { color: var(--text); }
+
+.modal .privacy {
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  padding: 0.75rem 1rem;
+  background: rgba(63,185,80,0.06);
+  border: 1px solid rgba(63,185,80,0.2);
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+}
+
+.start-btn {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: white;
+  font-size: 1rem;
+  padding: 0.85rem 1.5rem;
+  width: 100%;
+  font-weight: 600;
+}
+
+.start-btn:hover { background: var(--brand-light); border-color: var(--brand-light); }
+
+.diagram {
+  width: 100%;
+  height: 140px;
+  margin: 0.5rem 0 1.25rem;
+  display: block;
+}
+
+#snapshot-result {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 2rem;
+}
+
+#snapshot-result.open { display: flex; animation: fadeIn 0.25s ease; }
+#snapshot-result img {
+  max-width: 90%;
+  max-height: 70vh;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}
+
+.snap-actions { display: flex; gap: 0.75rem; }
+
+.error-banner {
+  background: rgba(248,81,73,0.1);
+  border: 1px solid rgba(248,81,73,0.4);
+  color: #ff9a94;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  display: none;
+}
+
+.error-banner.show { display: block; }
+.error-banner strong { color: #ffb4ae; }
+.error-banner code { background: rgba(0,0,0,0.3); padding: 1px 6px; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.8em; }
+
+.loading-bar {
+  display: none;
+  margin: 0.75rem 0;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.loading-bar.show { display: block; }
+.loading-bar > div { height: 100%; background: linear-gradient(90deg, var(--brand), var(--brand-light)); width: 0%; transition: width 0.3s ease; }
+
+.loading-text {
+  display: none;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.loading-text.show { display: block; }
+
+.secondary-btn {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-dim);
+  width: 100%;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+.secondary-btn:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">I</div>
+    <div>
+      <h1>Intake Placement Coach</h1>
+      <div class="tagline">AI-guided placement for your nasal breathing magnets</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button id="help-btn" title="How it works">Help</button>
+    <button id="restart-btn" class="primary" title="Restart session">Restart</button>
+  </div>
+</header>
+
+<main>
+  <div class="camera-section" id="camera-section">
+    <video id="webcam" autoplay playsinline muted></video>
+    <canvas id="overlay"></canvas>
+    <div class="status-pill">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Click Start to begin</span>
+    </div>
+    <div class="fps-pill" id="fps-pill" style="display:none">— fps</div>
+    <div class="message-overlay" id="message-overlay">Press <strong>Start</strong> to allow camera access</div>
+    <div class="camera-controls">
+      <button class="icon-btn" id="snap-btn" title="Take snapshot" aria-label="Take snapshot">📷</button>
+      <button class="icon-btn" id="mute-btn" title="Toggle voice prompts" aria-label="Toggle voice">🔇</button>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="card">
+      <h2>Current step</h2>
+      <div class="step-display">
+        <div class="step-num" id="step-num">1</div>
+        <div class="step-info">
+          <div class="step-title" id="step-title">Position your face</div>
+          <div class="step-desc" id="step-desc">Center your face in view, looking directly at the camera.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Alignment</h2>
+      <div class="metric">
+        <span class="metric-label">Centering</span>
+        <div class="metric-bar"><div class="metric-fill" id="bar-center"></div></div>
+        <span class="metric-value" id="val-center">0</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label">Distance</span>
+        <div class="metric-bar"><div class="metric-fill" id="bar-distance"></div></div>
+        <span class="metric-value" id="val-distance">0</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label">Head pose</span>
+        <div class="metric-bar"><div class="metric-fill" id="bar-pose"></div></div>
+        <span class="metric-value" id="val-pose">0</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label">Lighting</span>
+        <div class="metric-bar"><div class="metric-fill" id="bar-light"></div></div>
+        <span class="metric-value" id="val-light">0</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Live guidance</h2>
+      <ul class="tips-list" id="tips-list">
+        <li>Click <strong>Start</strong> to begin tracking.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>About placement</h2>
+      <p class="info-text">
+        Intake magnets sit on the <strong>upper sidewall of each nostril</strong>, where the nose flares from the bridge — the nasal valve area. The strips pull outward to widen this passage and open your airway.
+      </p>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  Not affiliated with Intake Breathing. This is a placement guide, not a medical device — always follow the manufacturer's official instructions.
+  All video stays on your device; nothing is uploaded.
+</footer>
+
+<!-- Welcome modal -->
+<div class="modal-bg open" id="welcome-modal">
+  <div class="modal">
+    <h2>Welcome 👋</h2>
+    <p>This tool uses your webcam and on-device face tracking to show you exactly where to place your Intake breathing magnets.</p>
+    <svg class="diagram" viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="targetGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#3fb950" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#3fb950" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <!-- Simple face silhouette -->
+      <ellipse cx="150" cy="75" rx="55" ry="65" fill="none" stroke="#2a3242" stroke-width="1.5"/>
+      <!-- Nose -->
+      <path d="M 150 45 Q 138 75 142 95 Q 150 102 158 95 Q 162 75 150 45" fill="none" stroke="#6e7681" stroke-width="1.5"/>
+      <!-- Nostrils -->
+      <ellipse cx="146" cy="98" rx="3" ry="2" fill="#6e7681"/>
+      <ellipse cx="154" cy="98" rx="3" ry="2" fill="#6e7681"/>
+      <!-- Target markers -->
+      <circle cx="136" cy="80" r="14" fill="url(#targetGlow)"/>
+      <circle cx="136" cy="80" r="7" fill="none" stroke="#3fb950" stroke-width="2"/>
+      <circle cx="136" cy="80" r="2" fill="#3fb950"/>
+      <circle cx="164" cy="80" r="14" fill="url(#targetGlow)"/>
+      <circle cx="164" cy="80" r="7" fill="none" stroke="#3fb950" stroke-width="2"/>
+      <circle cx="164" cy="80" r="2" fill="#3fb950"/>
+      <!-- Labels -->
+      <text x="105" y="83" fill="#3fb950" font-size="10" font-family="-apple-system,sans-serif" font-weight="600">LEFT</text>
+      <text x="180" y="83" fill="#3fb950" font-size="10" font-family="-apple-system,sans-serif" font-weight="600">RIGHT</text>
+    </svg>
+    <p>Two glowing targets will appear on your nose. Place one Intake strip at each marker.</p>
+    <div class="privacy">🔒 Everything runs locally in your browser — no video leaves your device.</div>
+    <div class="error-banner" id="welcome-error"></div>
+    <div class="loading-text" id="loading-text">Loading face tracking model…</div>
+    <div class="loading-bar" id="loading-bar"><div></div></div>
+    <button class="start-btn" id="start-btn">Start camera</button>
+    <button class="secondary-btn" id="open-new-tab-btn" style="display:none">Open in a new browser window</button>
+  </div>
+</div>
+
+<!-- Help modal -->
+<div class="modal-bg" id="help-modal">
+  <div class="modal">
+    <h2>How this works</h2>
+    <p><strong>1.</strong> Allow camera access.</p>
+    <p><strong>2.</strong> Position your face — look straight at the camera, fill ~half the frame.</p>
+    <p><strong>3.</strong> Two green markers appear on the sides of your nose. That's where each magnet goes.</p>
+    <p><strong>4.</strong> Place one Intake strip at each marker, pressing gently for ~5 seconds.</p>
+    <p><strong>5.</strong> Take a snapshot to verify placement against the targets.</p>
+    <p style="font-size:0.85rem;color:var(--text-faint);margin-top:1rem;">The app uses MediaPipe Face Landmarker (478 landmarks) to find the alar cartilage — the curve of your nose just above each nostril where the nasal valve sits.</p>
+    <button class="start-btn" id="help-close" style="margin-top:0.5rem">Got it</button>
+  </div>
+</div>
+
+<!-- Snapshot viewer -->
+<div id="snapshot-result">
+  <img id="snapshot-img" alt="Placement snapshot">
+  <div class="snap-actions">
+    <button id="snap-close">Close</button>
+    <button class="primary" id="snap-download">Download PNG</button>
+  </div>
+</div>
+
+<script type="module">
+// MediaPipe is loaded dynamically inside the start handler so import errors
+// surface in the UI rather than as a silent module load failure.
+const MEDIAPIPE_VERSION = "0.10.14";
+let FilesetResolver, FaceLandmarker;
+
+// ---------- DOM refs ----------
+const video = document.getElementById('webcam');
+const canvas = document.getElementById('overlay');
+const ctx = canvas.getContext('2d');
+const cameraSection = document.getElementById('camera-section');
+const statusText = document.getElementById('status-text');
+const statusDot = document.getElementById('status-dot');
+const messageOverlay = document.getElementById('message-overlay');
+const fpsPill = document.getElementById('fps-pill');
+
+// ---------- State ----------
+let faceLandmarker = null;
+let running = false;
+let lastVideoTime = -1;
+let lastResults = null;
+let voiceOn = false;
+let lastSpoken = '';
+let lastSpokeAt = 0;
+let currentStep = 0;
+let smoothMetrics = { centering: 0, distance: 0, pose: 0, lighting: 0 };
+let lastUIUpdate = 0;
+let frameTimes = [];
+
+// ---------- Step definitions ----------
+const stepDefs = [
+  null,
+  { num: 1, title: 'Position your face', desc: 'Center your face in view, looking directly at the camera.' },
+  { num: 2, title: 'Check alignment',    desc: 'Hold steady — fine-tuning your nose position.' },
+  { num: 3, title: 'Place the magnets',   desc: 'Stick one Intake strip at each glowing green target on the sides of your nose.' },
+  { num: 4, title: 'Verify placement',    desc: 'Looking good — take a snapshot to compare against the targets.' },
+];
+
+// ---------- MediaPipe landmark indices (canonical face mesh) ----------
+const LM = {
+  noseTip: 1,
+  noseBridgeTop: 168,
+  noseBridgeMid: 197,
+  noseBridgeLow: 195,
+  // Alar groove (subject's perspective)
+  alarRight: 49,    // subject's right side (viewer's left when not mirrored)
+  alarLeft: 279,    // subject's left side
+  // Upper lateral nose sidewall
+  sideRight: 209,
+  sideLeft: 429,
+  // Reference
+  forehead: 10,
+  chin: 152,
+  leftEyeOuter: 263,
+  rightEyeOuter: 33,
+  leftEar: 454,
+  rightEar: 234,
+};
+
+// Compute the two magnet placement targets.
+// They sit on the upper alar cartilage — the curve of the nose just above each nostril.
+// We take the alar groove landmark and blend ~30% toward the upper bridge to lift
+// the target above the groove onto the nasal sidewall where the strips actually adhere.
+function getTargets(landmarks) {
+  const bridge = landmarks[LM.noseBridgeMid];
+  const aR = landmarks[LM.alarRight];
+  const aL = landmarks[LM.alarLeft];
+  const blend = (p, q, t) => ({
+    x: p.x * (1 - t) + q.x * t,
+    y: p.y * (1 - t) + q.y * t,
+    z: (p.z || 0) * (1 - t) + (q.z || 0) * t,
+  });
+  return {
+    right: blend(aR, bridge, 0.30),
+    left:  blend(aL, bridge, 0.30),
+  };
+}
+
+// ---------- Lifecycle ----------
+async function loadMediaPipe(progressCb) {
+  progressCb && progressCb(5, 'Fetching MediaPipe runtime…');
+  const mod = await import(`https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MEDIAPIPE_VERSION}/vision_bundle.mjs`);
+  FilesetResolver = mod.FilesetResolver;
+  FaceLandmarker = mod.FaceLandmarker;
+  if (!FilesetResolver || !FaceLandmarker) {
+    throw new Error('MediaPipe module loaded but expected exports were missing.');
+  }
+}
+
+async function initModel(progressCb) {
+  setStatus('Loading model…', 'warn');
+  progressCb && progressCb(25, 'Initialising WebAssembly…');
+  const vision = await FilesetResolver.forVisionTasks(
+    `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MEDIAPIPE_VERSION}/wasm`
+  );
+  progressCb && progressCb(55, 'Downloading face model (~3.7 MB)…');
+  const opts = {
+    baseOptions: {
+      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+      delegate: "GPU",
+    },
+    outputFaceBlendshapes: false,
+    outputFacialTransformationMatrixes: false,
+    runningMode: "VIDEO",
+    numFaces: 1,
+  };
+  try {
+    faceLandmarker = await FaceLandmarker.createFromOptions(vision, opts);
+  } catch (e) {
+    console.warn('GPU delegate failed, falling back to CPU.', e);
+    opts.baseOptions.delegate = "CPU";
+    faceLandmarker = await FaceLandmarker.createFromOptions(vision, opts);
+  }
+  progressCb && progressCb(85, 'Model ready');
+}
+
+async function startCamera(progressCb) {
+  setStatus('Requesting camera…', 'warn');
+  progressCb && progressCb(90, 'Requesting camera permission…');
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    const err = new Error('Your browser does not expose getUserMedia. Use Chrome, Edge, Safari, or Firefox over http://localhost or https://.');
+    err.code = 'NO_API';
+    throw err;
+  }
+  if (!window.isSecureContext) {
+    const err = new Error('This page is not a secure context, so the camera is blocked. Open it via http://localhost or an https:// URL.');
+    err.code = 'INSECURE';
+    throw err;
+  }
+
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        width:  { ideal: 1280 },
+        height: { ideal: 720 },
+        facingMode: 'user',
+      },
+      audio: false,
+    });
+  } catch (e) {
+    // Surface the most common reasons clearly
+    const name = e && (e.name || '');
+    if (/NotAllowed|Permission|SecurityError/i.test(name)) {
+      e.friendly = 'Camera permission denied. If this page is inside a preview panel, open it in a real browser tab — embedded previews usually block the camera.';
+    } else if (/NotFound|OverConstrained/i.test(name)) {
+      e.friendly = 'No camera was found. Plug one in or check macOS System Settings → Privacy & Security → Camera.';
+    } else if (/NotReadable|TrackStart/i.test(name)) {
+      e.friendly = 'The camera is in use by another app (Zoom, FaceTime, etc.). Close it and try again.';
+    } else {
+      e.friendly = `Camera error: ${name || e.message || 'unknown'}.`;
+    }
+    throw e;
+  }
+
+  video.srcObject = stream;
+  await new Promise((resolve) => {
+    if (video.readyState >= 1 && video.videoWidth) resolve();
+    else video.onloadedmetadata = () => resolve();
+  });
+  await video.play();
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  cameraSection.style.aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
+  progressCb && progressCb(100, 'Camera live');
+}
+
+// ---------- Helpers ----------
+function setStatus(text, level = 'neutral') {
+  statusText.textContent = text;
+  statusDot.className = 'status-dot' + (level && level !== 'neutral' ? ' ' + level : '');
+}
+
+function setStep(n) {
+  if (n === currentStep) return;
+  currentStep = n;
+  const s = stepDefs[n];
+  if (!s) return;
+  document.getElementById('step-num').textContent = s.num;
+  document.getElementById('step-title').textContent = s.title;
+  document.getElementById('step-desc').textContent = s.desc;
+}
+
+function setMetric(name, value) {
+  const pct = Math.max(0, Math.min(1, value));
+  const bar = document.getElementById('bar-' + name);
+  const val = document.getElementById('val-' + name);
+  if (!bar || !val) return;
+  bar.style.width = (pct * 100) + '%';
+  val.textContent = Math.round(pct * 100);
+  if (pct > 0.75)      bar.style.background = 'var(--accent)';
+  else if (pct > 0.4)  bar.style.background = 'var(--accent-warn)';
+  else                 bar.style.background = 'var(--accent-bad)';
+}
+
+let lastTipsHash = '';
+function setTips(items) {
+  const hash = items.map(i => i.text + (i.good ? '+' : '')).join('|');
+  if (hash === lastTipsHash) return;
+  lastTipsHash = hash;
+  const list = document.getElementById('tips-list');
+  list.innerHTML = '';
+  for (const it of items) {
+    const li = document.createElement('li');
+    if (it.good) li.classList.add('good');
+    li.textContent = it.text;
+    list.appendChild(li);
+  }
+}
+
+let lastMessage = '';
+function setMessage(text) {
+  if (text === lastMessage) return;
+  lastMessage = text;
+  messageOverlay.innerHTML = text;
+}
+
+function speak(msg) {
+  if (!voiceOn || !('speechSynthesis' in window)) return;
+  if (msg === lastSpoken && Date.now() - lastSpokeAt < 6000) return;
+  lastSpoken = msg;
+  lastSpokeAt = Date.now();
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(msg);
+  u.rate = 1.05;
+  u.pitch = 1.0;
+  u.volume = 0.85;
+  speechSynthesis.speak(u);
+}
+
+function smooth(key, value, alpha = 0.2) {
+  smoothMetrics[key] = smoothMetrics[key] * (1 - alpha) + value * alpha;
+  return smoothMetrics[key];
+}
+
+// ---------- Frame analysis ----------
+function computeFrameMetrics(landmarks) {
+  const tip = landmarks[LM.noseTip];
+  const leftEar = landmarks[LM.leftEar];
+  const rightEar = landmarks[LM.rightEar];
+  const forehead = landmarks[LM.forehead];
+  const chin = landmarks[LM.chin];
+
+  // Centering: nose tip vs frame center
+  const dx = tip.x - 0.5;
+  const dy = tip.y - 0.5;
+  const distFromCenter = Math.sqrt(dx * dx + dy * dy);
+  const centering = Math.max(0, 1 - distFromCenter * 3.2);
+
+  // Distance: ideal face height ~0.55 of frame
+  const faceHeight = Math.abs(forehead.y - chin.y);
+  const target = 0.55;
+  const distance = Math.max(0, 1 - Math.abs(faceHeight - target) * 3.5);
+
+  // Pose (yaw): nose tip should sit ~midway between ears horizontally
+  const earSpan = Math.abs(rightEar.x - leftEar.x);
+  const earMid = (rightEar.x + leftEar.x) / 2;
+  const yawOff = earSpan > 0.01 ? Math.abs(tip.x - earMid) / earSpan : 1;
+  const pose = Math.max(0, 1 - yawOff * 4);
+
+  return {
+    centering,
+    distance,
+    pose,
+    faceHeight,
+  };
+}
+
+function computeLighting() {
+  // Sample center crop of video for average luminance
+  const sw = 64, sh = 48;
+  const tmp = document.createElement('canvas');
+  tmp.width = sw; tmp.height = sh;
+  const tc = tmp.getContext('2d');
+  const cx = video.videoWidth * 0.3;
+  const cy = video.videoHeight * 0.25;
+  const cw = video.videoWidth * 0.4;
+  const ch = video.videoHeight * 0.5;
+  try {
+    tc.drawImage(video, cx, cy, cw, ch, 0, 0, sw, sh);
+  } catch (_) { return 0.5; }
+  const data = tc.getImageData(0, 0, sw, sh).data;
+  let sum = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    sum += 0.2126 * data[i] + 0.7152 * data[i+1] + 0.0722 * data[i+2];
+  }
+  const avg = sum / (data.length / 4);
+  // Score: ideal 100-180 of 255
+  let s;
+  if (avg < 60) s = avg / 120;
+  else if (avg < 100) s = 0.5 + (avg - 60) / 80;
+  else if (avg < 190) s = 1.0;
+  else s = Math.max(0.4, 1 - (avg - 190) / 80);
+  return Math.max(0, Math.min(1, s));
+}
+
+// ---------- Drawing ----------
+let pulsePhase = 0;
+function draw(results) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!results || !results.faceLandmarks || results.faceLandmarks.length === 0) return;
+
+  const lm = results.faceLandmarks[0];
+  const w = canvas.width, h = canvas.height;
+  // Mirror x to match the CSS-mirrored video
+  const px = p => (1 - p.x) * w;
+  const py = p => p.y * h;
+
+  // Faint full-mesh constellation
+  ctx.fillStyle = 'rgba(99, 102, 241, 0.18)';
+  for (let i = 0; i < lm.length; i += 1) {
+    const p = lm[i];
+    ctx.fillRect(px(p) - 0.5, py(p) - 0.5, 1.2, 1.2);
+  }
+
+  // Highlight the nose region for visual focus
+  const noseIdx = [1, 2, 4, 5, 6, 168, 197, 195, 49, 279, 209, 429, 64, 294, 102, 331, 220, 440, 219, 459];
+  ctx.fillStyle = 'rgba(129, 140, 248, 0.85)';
+  for (const idx of noseIdx) {
+    const p = lm[idx]; if (!p) continue;
+    ctx.beginPath();
+    ctx.arc(px(p), py(p), 1.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Outline of nose bridge (top to tip)
+  const bridgePath = [10, 168, 6, 197, 195, 5, 4, 1];
+  ctx.strokeStyle = 'rgba(99,102,241,0.45)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (let i = 0; i < bridgePath.length; i++) {
+    const p = lm[bridgePath[i]]; if (!p) continue;
+    if (i === 0) ctx.moveTo(px(p), py(p));
+    else ctx.lineTo(px(p), py(p));
+  }
+  ctx.stroke();
+
+  // Targets
+  const t = getTargets(lm);
+  pulsePhase += 0.06;
+  const pulse = Math.sin(pulsePhase);
+
+  const drawTarget = (p, label, side) => {
+    const x = px(p), y = py(p);
+    const r = 16;
+    const outerR = r + 8 + pulse * 4;
+
+    // Outer pulsing ring
+    ctx.strokeStyle = 'rgba(63, 185, 80, 0.35)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, outerR, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Main ring with glow
+    ctx.shadowColor = '#3fb950';
+    ctx.shadowBlur = 14;
+    ctx.strokeStyle = '#3fb950';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Inner dot
+    ctx.fillStyle = '#3fb950';
+    ctx.beginPath();
+    ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Crosshair
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(x - r + 2, y); ctx.lineTo(x - 6, y);
+    ctx.moveTo(x + 6, y);     ctx.lineTo(x + r - 2, y);
+    ctx.moveTo(x, y - r + 2); ctx.lineTo(x, y - 6);
+    ctx.moveTo(x, y + 6);     ctx.lineTo(x, y + r - 2);
+    ctx.stroke();
+
+    // Label (offset outward, away from nose centerline)
+    const labelOffsetX = side === 'left' ? -36 : 36;
+    const labelX = x + labelOffsetX;
+    const labelY = y;
+    ctx.font = '600 12px -apple-system, system-ui, sans-serif';
+    const labelW = ctx.measureText(label).width + 12;
+    ctx.fillStyle = 'rgba(0,0,0,0.78)';
+    ctx.fillRect(labelX - labelW / 2, labelY - 10, labelW, 20);
+    ctx.fillStyle = '#3fb950';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, labelX, labelY);
+
+    // Connecting line from label to ring
+    ctx.strokeStyle = 'rgba(63,185,80,0.5)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    const lineFromX = labelX + (side === 'left' ? labelW / 2 : -labelW / 2);
+    ctx.moveTo(lineFromX, labelY);
+    ctx.lineTo(x + (side === 'left' ? -r : r), y);
+    ctx.stroke();
+  };
+
+  drawTarget(t.left, 'LEFT', 'left');
+  drawTarget(t.right, 'RIGHT', 'right');
+}
+
+// ---------- Main loop ----------
+function loop(ts) {
+  if (!running) return;
+  if (video.readyState < 2 || !faceLandmarker) {
+    requestAnimationFrame(loop);
+    return;
+  }
+
+  // FPS tracking
+  frameTimes.push(ts);
+  if (frameTimes.length > 30) frameTimes.shift();
+
+  // Inference: only when video frame advances
+  if (video.currentTime !== lastVideoTime) {
+    lastVideoTime = video.currentTime;
+    try {
+      lastResults = faceLandmarker.detectForVideo(video, performance.now());
+    } catch (e) {
+      console.error('Detection error', e);
+    }
+  }
+
+  // Always draw (so pulse animates)
+  draw(lastResults);
+
+  // Throttle UI updates to ~10 Hz
+  if (ts - lastUIUpdate > 90) {
+    lastUIUpdate = ts;
+    updateUI();
+    if (frameTimes.length > 1) {
+      const fps = (frameTimes.length - 1) * 1000 / (frameTimes[frameTimes.length - 1] - frameTimes[0]);
+      fpsPill.textContent = `${fps.toFixed(0)} fps`;
+    }
+  }
+
+  requestAnimationFrame(loop);
+}
+
+function updateUI() {
+  if (lastResults && lastResults.faceLandmarks.length > 0) {
+    const lm = lastResults.faceLandmarks[0];
+    const raw = computeFrameMetrics(lm);
+    const rawLight = computeLighting();
+
+    const centering = smooth('centering', raw.centering);
+    const distance  = smooth('distance',  raw.distance);
+    const pose      = smooth('pose',      raw.pose);
+    const lighting  = smooth('lighting',  rawLight);
+
+    setMetric('center', centering);
+    setMetric('distance', distance);
+    setMetric('pose', pose);
+    setMetric('light', lighting);
+
+    const tips = [];
+    if (centering < 0.65) {
+      const tip = lm[LM.noseTip];
+      const dx = tip.x - 0.5;
+      const dy = tip.y - 0.5;
+      // Note: video is CSS-mirrored, so subject's left/right is swapped on screen.
+      const horiz = Math.abs(dx) > Math.abs(dy);
+      if (horiz) {
+        // dx > 0 means nose right of frame center in original coords → on mirrored display, nose appears LEFT of center → user moves right
+        tips.push({ text: dx > 0 ? 'Shift slightly to your left.' : 'Shift slightly to your right.' });
+      } else {
+        tips.push({ text: dy > 0 ? 'Lift your face — tilt your chin up a touch.' : 'Lower your face slightly.' });
+      }
+    }
+
+    if (distance < 0.55) {
+      tips.push({ text: raw.faceHeight < 0.55 ? 'Move closer to the camera.' : 'Move back a little.' });
+    }
+
+    if (pose < 0.65) {
+      tips.push({ text: 'Face the camera straight on — both ears should be visible.' });
+    }
+
+    if (lighting < 0.45) {
+      tips.push({ text: 'It looks dim — face a window or add light to your nose area.' });
+    } else if (lighting > 0.97) {
+      tips.push({ text: 'A bit overexposed — soften the light or move slightly out of direct sunlight.' });
+    }
+
+    const allGood = centering > 0.72 && distance > 0.6 && pose > 0.7 && lighting > 0.5;
+
+    if (allGood) {
+      setStatus('Targets locked', 'good');
+      setMessage('🟢 Place a magnet at each <strong>green target</strong>');
+      setStep(3);
+      speak('Place a magnet at each green target');
+      tips.unshift({ text: 'Stick one Intake strip on each green marker.', good: true });
+      tips.push({ text: 'Press gently along the strip for 5 seconds to seal.' });
+      tips.push({ text: 'When done, tap the camera button to snapshot and verify.' });
+    } else if (centering > 0.4) {
+      setStatus('Adjusting…', 'warn');
+      setMessage(tips[0]?.text || 'Hold steady');
+      setStep(2);
+    } else {
+      setStatus('Searching face', 'warn');
+      setMessage('Position your face in the center');
+      setStep(1);
+    }
+
+    if (tips.length === 0) tips.push({ text: 'All set — markers are tracking your nose.', good: true });
+    setTips(tips);
+
+  } else {
+    setStatus('No face detected', 'bad');
+    setMessage('Show your face to the camera');
+    setMetric('center', 0); setMetric('distance', 0); setMetric('pose', 0);
+    smoothMetrics = { centering: 0, distance: 0, pose: 0, lighting: smoothMetrics.lighting };
+    setTips([{ text: 'Make sure your face is fully in frame and well lit.' }]);
+    setStep(1);
+  }
+}
+
+// ---------- Snapshot ----------
+function takeSnapshot() {
+  if (!lastResults || lastResults.faceLandmarks.length === 0) {
+    setMessage('Need a face in view to snapshot');
+    return;
+  }
+  const lm = lastResults.faceLandmarks[0];
+  const t = getTargets(lm);
+
+  const sc = document.createElement('canvas');
+  sc.width = video.videoWidth;
+  sc.height = video.videoHeight;
+  const sctx = sc.getContext('2d');
+
+  // Mirror so snapshot matches the on-screen orientation
+  sctx.translate(sc.width, 0);
+  sctx.scale(-1, 1);
+  sctx.drawImage(video, 0, 0);
+  sctx.setTransform(1, 0, 0, 1, 0, 0);
+
+  // Markers (in mirrored coordinates)
+  const px = p => (1 - p.x) * sc.width;
+  const py = p => p.y * sc.height;
+  const drawMark = (p, label, side) => {
+    const x = px(p), y = py(p);
+    sctx.shadowColor = '#3fb950';
+    sctx.shadowBlur = 24;
+    sctx.strokeStyle = '#3fb950';
+    sctx.lineWidth = 4;
+    sctx.beginPath();
+    sctx.arc(x, y, 22, 0, Math.PI * 2);
+    sctx.stroke();
+    sctx.shadowBlur = 0;
+    sctx.fillStyle = '#3fb950';
+    sctx.beginPath();
+    sctx.arc(x, y, 5, 0, Math.PI * 2);
+    sctx.fill();
+
+    sctx.font = 'bold 18px -apple-system, sans-serif';
+    sctx.textAlign = 'center';
+    sctx.textBaseline = 'middle';
+    const tx = x + (side === 'left' ? -52 : 52);
+    const ty = y;
+    const tw = sctx.measureText(label).width + 18;
+    sctx.fillStyle = 'rgba(0,0,0,0.78)';
+    sctx.fillRect(tx - tw / 2, ty - 14, tw, 28);
+    sctx.fillStyle = '#3fb950';
+    sctx.fillText(label, tx, ty);
+  };
+  drawMark(t.left, 'LEFT', 'left');
+  drawMark(t.right, 'RIGHT', 'right');
+
+  // Timestamp watermark
+  sctx.font = '14px -apple-system, sans-serif';
+  sctx.fillStyle = 'rgba(255,255,255,0.7)';
+  sctx.textAlign = 'left';
+  sctx.fillText(`Intake Placement Coach • ${new Date().toLocaleString()}`, 14, sc.height - 14);
+
+  const dataUrl = sc.toDataURL('image/png');
+  document.getElementById('snapshot-img').src = dataUrl;
+  document.getElementById('snapshot-result').classList.add('open');
+  document.getElementById('snap-download').onclick = () => {
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `intake-placement-${Date.now()}.png`;
+    a.click();
+  };
+}
+
+// ---------- UI wiring ----------
+document.getElementById('snap-btn').addEventListener('click', takeSnapshot);
+document.getElementById('snap-close').addEventListener('click', () => {
+  document.getElementById('snapshot-result').classList.remove('open');
+});
+document.getElementById('mute-btn').addEventListener('click', (e) => {
+  voiceOn = !voiceOn;
+  e.currentTarget.textContent = voiceOn ? '🔊' : '🔇';
+  e.currentTarget.title = voiceOn ? 'Mute voice prompts' : 'Enable voice prompts';
+  if (!voiceOn && 'speechSynthesis' in window) speechSynthesis.cancel();
+});
+document.getElementById('help-btn').addEventListener('click', () => {
+  document.getElementById('help-modal').classList.add('open');
+});
+document.getElementById('help-close').addEventListener('click', () => {
+  document.getElementById('help-modal').classList.remove('open');
+});
+document.getElementById('restart-btn').addEventListener('click', () => {
+  window.location.reload();
+});
+function showWelcomeError(htmlMsg, opts = {}) {
+  const box = document.getElementById('welcome-error');
+  box.innerHTML = htmlMsg;
+  box.classList.add('show');
+  if (opts.showOpenNewTab) {
+    document.getElementById('open-new-tab-btn').style.display = 'block';
+  }
+}
+
+function hideWelcomeError() {
+  document.getElementById('welcome-error').classList.remove('show');
+  document.getElementById('open-new-tab-btn').style.display = 'none';
+}
+
+function setLoading(pct, label) {
+  document.getElementById('loading-bar').classList.add('show');
+  document.getElementById('loading-text').classList.add('show');
+  document.getElementById('loading-bar').firstElementChild.style.width = Math.max(0, Math.min(100, pct)) + '%';
+  if (label) document.getElementById('loading-text').textContent = label;
+}
+
+function hideLoading() {
+  document.getElementById('loading-bar').classList.remove('show');
+  document.getElementById('loading-text').classList.remove('show');
+}
+
+function isPreviewEnvironment() {
+  try { return window.self !== window.top; }
+  catch (_) { return true; } // cross-origin frame access throws → we're in a frame
+}
+
+document.getElementById('open-new-tab-btn').addEventListener('click', () => {
+  window.open(window.location.href, '_blank', 'noopener,noreferrer,width=1280,height=900');
+});
+
+document.getElementById('start-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('start-btn');
+  btn.disabled = true;
+  btn.textContent = 'Loading…';
+  hideWelcomeError();
+  setLoading(2, 'Starting…');
+
+  // Pre-flight checks
+  if (!window.isSecureContext) {
+    showWelcomeError(
+      `<strong>Insecure context.</strong> The browser only allows the camera on <code>https://</code> or <code>http://localhost</code>. ` +
+      `Run <code>./start.sh</code> from the project folder, or open <code>http://localhost:8765</code> directly.`,
+    );
+    btn.disabled = false; btn.textContent = 'Try again'; hideLoading(); return;
+  }
+  if (isPreviewEnvironment()) {
+    showWelcomeError(
+      `<strong>Embedded preview detected.</strong> Most preview panels block the camera. Open this page in a real browser tab to continue — ` +
+      `for example by running <code>./start.sh</code> in your terminal, or click the button below to open it in a new window.`,
+      { showOpenNewTab: true }
+    );
+    // Don't auto-fail — still let the user try if their preview supports camera
+  }
+
+  try {
+    await loadMediaPipe(setLoading);
+    // Run model init + camera in parallel for speed
+    await Promise.all([
+      initModel(setLoading),
+      startCamera(setLoading),
+    ]);
+    document.getElementById('welcome-modal').classList.remove('open');
+    hideLoading();
+    running = true;
+    fpsPill.style.display = 'block';
+    setStatus('Live', 'good');
+    setStep(1);
+    setMessage('Center your face in the frame');
+    requestAnimationFrame(loop);
+  } catch (e) {
+    console.error('Startup failed:', e);
+    setStatus('Error', 'bad');
+    hideLoading();
+    let msg;
+    if (e && e.friendly) {
+      msg = `<strong>${e.friendly}</strong>`;
+    } else if (e && /import|fetch|network/i.test(String(e.message || e))) {
+      msg = `<strong>Couldn't load MediaPipe from the CDN.</strong> Check your network connection and try again.<br><code>${(e.message || e).toString().slice(0, 200)}</code>`;
+    } else {
+      msg = `<strong>Startup failed.</strong> <code>${(e && (e.message || e.name)) || 'unknown error'}</code>`;
+    }
+    if (isPreviewEnvironment()) {
+      msg += `<br><br>If you're seeing this inside an embedded preview, open the page in a normal browser tab — most previews disallow camera access.`;
+      showWelcomeError(msg, { showOpenNewTab: true });
+    } else {
+      showWelcomeError(msg);
+    }
+    btn.disabled = false;
+    btn.textContent = 'Try again';
+  }
+});
+
+// Handle visibility — cancel speech when tab hidden
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && 'speechSynthesis' in window) speechSynthesis.cancel();
+});
+
+// Resize handling
+window.addEventListener('resize', () => {
+  if (video.videoWidth) {
+    cameraSection.style.aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
+  }
+});
+
+// ---------- Pre-flight environment notice ----------
+// Warn immediately, on page load, if the environment is going to block the camera.
+(function preflight() {
+  const inFrame = isPreviewEnvironment();
+  const insecure = !window.isSecureContext;
+  if (insecure) {
+    showWelcomeError(
+      `<strong>Camera unavailable here.</strong> Browsers only allow the webcam on <code>https://</code> or <code>http://localhost</code>. ` +
+      `From a terminal, run <code>./start.sh</code> in this project folder, then open <code>http://localhost:8765</code>.`
+    );
+  } else if (inFrame) {
+    showWelcomeError(
+      `<strong>Heads up — embedded preview.</strong> The webcam usually doesn't work inside preview panels. ` +
+      `Open this page in a real browser tab (e.g. by running <code>./start.sh</code> and visiting <code>http://localhost:8765</code>) for the full experience.`,
+      { showOpenNewTab: true }
+    );
+  }
+})();
+</script>
+</body>
+</html>
